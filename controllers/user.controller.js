@@ -2,6 +2,7 @@ const { mongoose } = require("../models");
 const db = require("../models");
 const Contact = db.contact;
 const Message = db.message;
+const User = db.user;
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -36,6 +37,7 @@ exports.addContact = (req, res) => {
 
 exports.sendText = (req, res) => {
   let phoneData = [];
+  let userPhone;
 
   const queries = req.body.phone.map(async (number) => {
     await Contact.findOne(
@@ -53,12 +55,15 @@ exports.sendText = (req, res) => {
       }
     );
   });
+  User.findOne({ _id: mongoose.Types.ObjectId(req.userId) }, (err, user) => {
+    userPhone = user.phone;
+  });
 
   return Promise.all(queries).then(() => {
     new Message({
       user_id: mongoose.Types.ObjectId(req.userId),
       phone: phoneData,
-      text: req.body.text,
+      text: `SOS SENT FROM ${userPhone},TEXT: ${req.body.text}, LIVE LOCATION:`,
     }).save((err) => {
       if (err) {
         console.log(err);
