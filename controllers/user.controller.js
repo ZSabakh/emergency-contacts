@@ -1,5 +1,7 @@
 const { mongoose } = require("../models");
-const Contact = require("../models/contact.model");
+const db = require("../models");
+const Contact = db.contact;
+const Message = db.message;
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -9,6 +11,10 @@ exports.userBoard = (req, res) => {
   res.status(200).send("User Content.");
 };
 
+exports.adminBoard = (req, res) => {
+  res.status(200).send("Admin Content.");
+};
+
 exports.addContact = (req, res) => {
   new Contact({
     contact_name: req.body.contact_name,
@@ -16,7 +22,8 @@ exports.addContact = (req, res) => {
     user_id: mongoose.Types.ObjectId(req.userId),
   }).save((err) => {
     if (err) {
-      console.log("error", err);
+      res.status(500).send({ message: err });
+      return;
     }
   });
 
@@ -27,6 +34,40 @@ exports.addContact = (req, res) => {
   });
 };
 
-exports.adminBoard = (req, res) => {
-  res.status(200).send("Admin Content.");
+exports.sendText = (req, res) => {
+  let phoneData = [];
+
+  const queries = req.body.phone.map(async (number) => {
+    await Contact.findOne(
+      { phone: number, user_id: mongoose.Types.ObjectId(req.userId) },
+      (err, contact) => {
+        if (err) {
+          res.status(500).send({ message: err });
+          return;
+        }
+        if (contact) {
+          phoneData.push({ number: number, contact: contact.contact_name });
+        } else {
+          phoneData.push({ number: number, contact: "unknown" });
+        }
+      }
+    );
+  });
+
+  return Promise.all(queries).then(() => {
+    new Message({
+      user_id: mongoose.Types.ObjectId(req.userId),
+      phone: phoneData,
+      text: req.body.text,
+    }).save((err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    res.status(200).send({
+      phone_data: phoneData,
+      text: req.body.text,
+    });
+  });
 };
