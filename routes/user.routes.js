@@ -1,4 +1,5 @@
 const { authJwt } = require("../middlewares");
+const { verifyContact } = require("../middlewares");
 const controller = require("../controllers/user.controller");
 
 module.exports = function (app) {
@@ -13,7 +14,11 @@ module.exports = function (app) {
   app.get("/public", controller.allAccess);
 
   app.get("/user", [authJwt.verifyToken], controller.userBoard);
-  app.post("/user/add-contact", [authJwt.verifyToken], controller.addContact);
+  app.post(
+    "/user/add-contact",
+    [authJwt.verifyToken, verifyContact.verifyName, verifyContact.verifyPhone],
+    controller.addContact
+  );
   app.post("/user/send-text", [authJwt.verifyToken], controller.sendText);
 
   app.get(
