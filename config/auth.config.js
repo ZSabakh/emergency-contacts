@@ -1,3 +1,3 @@
 module.exports = {
-  secret: "turtle-regular-paralegal",
+  secret: process.env.JWT_SECRET,
 };

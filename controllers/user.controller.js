@@ -38,6 +38,23 @@ exports.addContact = (req, res) => {
   });
 };
 
+exports.getContacts = (req, res) => {
+  Contact.find(
+    { user_id: mongoose.Types.ObjectId(req.userId) },
+    (err, contacts) => {
+      res.status(200).send({
+        contacts: contacts,
+      });
+      if (err) {
+        res.status(500).send({
+          message: err,
+        });
+        return;
+      }
+    }
+  );
+};
+
 exports.sendText = (req, res) => {
   let phoneData = [];
   let userPhone;
