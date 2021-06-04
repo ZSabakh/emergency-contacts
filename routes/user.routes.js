@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.get("/public", controller.allAccess);
 
   app.get("/user", [authJwt.verifyToken], controller.userBoard);
+
   app.post(
     "/user/add-contact",
     [authJwt.verifyToken, verifyContact.verifyName, verifyContact.verifyPhone],
