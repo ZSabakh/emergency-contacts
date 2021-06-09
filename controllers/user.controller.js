@@ -20,21 +20,6 @@ exports.adminBoard = (req, res) => {
 };
 
 exports.addContact = (req, res) => {
-  Contact.find(
-    {
-      contact_name: req.body.contact_name,
-      phone: req.body.phone,
-      user_id: mongoose.Types.ObjectId(req.userId),
-    },
-    (err, contacts) => {
-      if (contacts) {
-        res
-          .status(200)
-          .send({ message: "You have already submitted this contact" });
-      }
-    }
-  );
-
   new Contact({
     contact_name: req.body.contact_name,
     phone: req.body.phone,
@@ -47,7 +32,7 @@ exports.addContact = (req, res) => {
   });
 
   res.status(200).send({
-    name: req.body.contact_name,
+    contact_name: req.body.contact_name,
     phone: req.body.phone,
     user_id: mongoose.Types.ObjectId(req.userId),
   });
