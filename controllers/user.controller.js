@@ -59,6 +59,7 @@ exports.sendText = (req, res) => {
   let phoneData = [];
   let userPhone;
   let userName;
+  let location = `https://www.google.com/maps/place/${req.body.location[0]}+${req.body.location[1]}/`;
   const queries = req.body.phone.map(async (number) => {
     await User.findOne(
       { _id: mongoose.Types.ObjectId(req.userId) },
@@ -68,11 +69,13 @@ exports.sendText = (req, res) => {
       }
     );
     client.messages.create({
-      body: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${req.body.text}\n\n LIVE LOCATION:`,
+      body: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${
+        req.body.text
+      }\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`,
       from: "+19707103180",
       to: number,
     });
-
+    console.log(req.body.location);
     await Contact.findOne(
       { phone: number, user_id: mongoose.Types.ObjectId(req.userId) },
       (err, contact) => {
@@ -93,7 +96,9 @@ exports.sendText = (req, res) => {
     new Message({
       user_id: mongoose.Types.ObjectId(req.userId),
       phone: phoneData,
-      text: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${req.body.text}\n\n LIVE LOCATION:`,
+      text: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${
+        req.body.text
+      }\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`,
     }).save((err) => {
       if (err) {
         res.status(500).send({

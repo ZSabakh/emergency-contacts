@@ -20,7 +20,7 @@ checkDuplicate = (req, res, next) => {
       user_id: req.userId,
     },
     (err, contacts) => {
-      if (contacts) {
+      if (contacts.length > 0) {
         res
           .status(200)
           .send({ message: "You have already submitted this contact" });
