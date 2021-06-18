@@ -38,6 +38,23 @@ exports.addContact = (req, res) => {
   });
 };
 
+exports.removeContacts = (req, res) => {
+  if (req.body.contact_ids.length < 1) {
+    res.status(400).send({ message: "Invalid request" });
+  }
+
+  contactIDs = req.body.contact_ids;
+  contactIDs.map((contactID) => {
+    Contact.findByIdAndRemove(contactID, (err, result) => {
+      if (err) {
+        res.status(500).send({ message: err });
+      } else {
+        res.status(200).send(result);
+      }
+    });
+  });
+};
+
 exports.getContacts = (req, res) => {
   Contact.find(
     { user_id: mongoose.Types.ObjectId(req.userId) },

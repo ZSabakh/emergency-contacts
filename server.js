@@ -47,6 +47,7 @@ function dbConnection() {
     .connect(
       `mongodb+srv://${dbConfig.HOST}/${dbConfig.DB}?retryWrites=true&w=majority`,
       {
+        useFindAndModify: false,
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }

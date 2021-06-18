@@ -26,6 +26,11 @@ module.exports = function (app) {
     ],
     controller.addContact
   );
+  app.post(
+    "/user/remove-contacts",
+    [authJwt.verifyToken],
+    controller.removeContacts
+  );
   app.post("/user/send-text", [authJwt.verifyToken], controller.sendText);
 
   app.get(
