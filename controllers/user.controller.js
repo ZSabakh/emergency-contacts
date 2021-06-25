@@ -15,60 +15,49 @@ exports.userBoard = (req, res) => {
   res.status(200).send("User Content.");
 };
 
-exports.adminBoard = (req, res) => {
-  res.status(200).send("Admin Content.");
-};
-
 exports.addContact = (req, res) => {
   new Contact({
     contact_name: req.body.contact_name,
     phone: req.body.phone,
     user_id: mongoose.Types.ObjectId(req.userId),
   }).save((err) => {
+    res.status(200).send({
+      contact_name: req.body.contact_name,
+      phone: req.body.phone,
+      user_id: mongoose.Types.ObjectId(req.userId),
+    });
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
-  });
-
-  res.status(200).send({
-    contact_name: req.body.contact_name,
-    phone: req.body.phone,
-    user_id: mongoose.Types.ObjectId(req.userId),
   });
 };
 
 exports.removeContacts = (req, res) => {
   contactIDs = req.body._id;
   contactIDs.map((contactID) => {
-    Contact.deleteOne(
-      { _id: contactID, user_id: mongoose.Types.ObjectId(req.userId) },
-      (err, result) => {
-        if (err) {
-          res.status(500).send({ message: err });
-        } else {
-          res.status(200).send(result);
-        }
+    Contact.deleteOne({ _id: contactID, user_id: mongoose.Types.ObjectId(req.userId) }, (err, result) => {
+      if (err) {
+        res.status(500).send({ message: err });
+      } else {
+        res.status(200).send(result);
       }
-    );
+    });
   });
 };
 
 exports.getContacts = (req, res) => {
-  Contact.find(
-    { user_id: mongoose.Types.ObjectId(req.userId) },
-    (err, contacts) => {
-      res.status(200).send({
-        contacts: contacts,
+  Contact.find({ user_id: mongoose.Types.ObjectId(req.userId) }, (err, contacts) => {
+    res.status(200).send({
+      contacts: contacts,
+    });
+    if (err) {
+      res.status(500).send({
+        message: err,
       });
-      if (err) {
-        res.status(500).send({
-          message: err,
-        });
-        return;
-      }
+      return;
     }
-  );
+  });
 };
 
 exports.sendText = (req, res) => {
@@ -76,45 +65,37 @@ exports.sendText = (req, res) => {
   let userPhone;
   let userName;
   let location = `https://www.google.com/maps/place/${req.body.location[0]}+${req.body.location[1]}/`;
+  let message;
   const queries = req.body.phone.map(async (number) => {
-    await User.findOne(
-      { _id: mongoose.Types.ObjectId(req.userId) },
-      (err, user) => {
-        userPhone = user.phone;
-        userName = user.username;
-      }
-    );
+    await User.findOne({ _id: mongoose.Types.ObjectId(req.userId) }, (err, user) => {
+      userPhone = user.phone;
+      userName = user.username;
+    });
+    message = `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${req.body.text}\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`;
     client.messages.create({
-      body: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${
-        req.body.text
-      }\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`,
+      body: message,
       from: "+19707103180",
       to: number,
     });
     console.log(req.body.location);
-    await Contact.findOne(
-      { phone: number, user_id: mongoose.Types.ObjectId(req.userId) },
-      (err, contact) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-        if (contact) {
-          phoneData.push({ number: number, contact: contact.contact_name });
-        } else {
-          phoneData.push({ number: number, contact: "unknown" });
-        }
+    await Contact.findOne({ phone: number, user_id: mongoose.Types.ObjectId(req.userId) }, (err, contact) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
       }
-    );
+      if (contact) {
+        phoneData.push({ number: number, contact: contact.contact_name });
+      } else {
+        phoneData.push({ number: number, contact: "unknown" });
+      }
+    });
   });
 
   return Promise.all(queries).then(() => {
     new Message({
       user_id: mongoose.Types.ObjectId(req.userId),
       phone: phoneData,
-      text: `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${
-        req.body.text
-      }\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`,
+      text: message,
     }).save((err) => {
       if (err) {
         res.status(500).send({

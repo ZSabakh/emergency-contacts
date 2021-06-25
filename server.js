@@ -13,6 +13,7 @@ dbConnection();
 
 require("./routes/auth.routes.js")(app);
 require("./routes/user.routes.js")(app);
+require("./routes/admin.routes.js")(app);
 
 app.listen(process.env.PORT);
 
