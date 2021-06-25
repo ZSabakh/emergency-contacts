@@ -4,6 +4,7 @@ const Contact = db.contact;
 const Message = db.message;
 const User = db.user;
 const GeneralText = db.general_text;
+const UserText = db.user_text;
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require("twilio")(accountSid, authToken);
@@ -22,15 +23,41 @@ exports.addContact = (req, res) => {
     phone: req.body.phone,
     user_id: mongoose.Types.ObjectId(req.userId),
   }).save((err) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
     res.status(200).send({
       contact_name: req.body.contact_name,
       phone: req.body.phone,
       user_id: mongoose.Types.ObjectId(req.userId),
     });
+  });
+};
+
+exports.addText = (req, res) => {
+  let customUserText = req.body.text;
+  new UserText({
+    user_id: mongoose.Types.ObjectId(req.userId),
+    text: customUserText,
+  }).save((err) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
+    res.status(200).send({
+      message: "Text saved successfully",
+    });
+  });
+};
+
+exports.getTexts = (req, res) => {
+  UserText.find({ user_id: mongoose.Types.ObjectId(req.userId) }, (err, texts) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+    res.status(200).send({ texts: texts });
   });
 };
 
@@ -40,24 +67,24 @@ exports.removeContacts = (req, res) => {
     Contact.deleteOne({ _id: contactID, user_id: mongoose.Types.ObjectId(req.userId) }, (err, result) => {
       if (err) {
         res.status(500).send({ message: err });
-      } else {
-        res.status(200).send(result);
+        return;
       }
+      res.status(200).send(result);
     });
   });
 };
 
 exports.getContacts = (req, res) => {
   Contact.find({ user_id: mongoose.Types.ObjectId(req.userId) }, (err, contacts) => {
-    res.status(200).send({
-      contacts: contacts,
-    });
     if (err) {
       res.status(500).send({
         message: err,
       });
       return;
     }
+    res.status(200).send({
+      contacts: contacts,
+    });
   });
 };
 
