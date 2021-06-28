@@ -109,6 +109,7 @@ exports.sendText = (req, res) => {
     } else {
       message = `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${req.body.text}\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`;
     }
+    console.log(message);
     client.messages.create({
       body: message,
       from: "+19707103180",
@@ -139,6 +140,7 @@ exports.sendText = (req, res) => {
         res.status(500).send({
           phone_data: phoneData,
           text: err,
+          date: new Date(new Date().toUTCString()),
         });
         return;
       }
