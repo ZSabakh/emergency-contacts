@@ -52,12 +52,14 @@ exports.addText = (req, res) => {
 };
 
 exports.getTexts = (req, res) => {
-  UserText.find({ user_id: mongoose.Types.ObjectId(req.userId) }, (err, texts) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
-    res.status(200).send({ texts: texts });
+  GeneralText.find({}, (adminErr, adminTexts) => {
+    UserText.find({ user_id: mongoose.Types.ObjectId(req.userId) }, (userErr, userTexts) => {
+      if (userErr || adminErr) {
+        res.status(500).send({ message: userErr });
+        return;
+      }
+      res.status(200).send({ texts: adminTexts.concat(userTexts) });
+    });
   });
 };
 
