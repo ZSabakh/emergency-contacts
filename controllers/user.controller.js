@@ -71,9 +71,22 @@ exports.removeContacts = (req, res) => {
         res.status(500).send({ message: err });
         return;
       }
-      res.status(200).send(result);
     });
   });
+  res.status(200).send({ message: "Success" });
+};
+
+exports.removeTexts = (req, res) => {
+  textIds = req.body._id;
+  textIds.map((textID) => {
+    UserText.deleteOne({ _id: textID, user_id: mongoose.Types.ObjectId(req.userId) }, (err, result) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+    });
+  });
+  res.status(200).send({ message: "Success" });
 };
 
 exports.getContacts = (req, res) => {
@@ -109,7 +122,6 @@ exports.sendText = (req, res) => {
     } else {
       message = `SOS SENT FROM ${userPhone} with username ${userName}\n\nTEXT: ${req.body.text}\n\n ${req.body.location ? `LOCATION: ${location}` : ""}`;
     }
-    console.log(message);
     client.messages.create({
       body: message,
       from: "+19707103180",
@@ -135,12 +147,12 @@ exports.sendText = (req, res) => {
       user_id: mongoose.Types.ObjectId(req.userId),
       phone: phoneData,
       text: message,
+      date: new Date(new Date().toUTCString()),
     }).save((err) => {
       if (err) {
         res.status(500).send({
           phone_data: phoneData,
           text: err,
-          date: new Date(new Date().toUTCString()),
         });
         return;
       }

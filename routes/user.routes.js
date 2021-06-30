@@ -17,4 +17,5 @@ module.exports = function (app) {
   app.get("/user/get-texts", [authJwt.verifyToken], controller.getTexts);
   app.post("/user/remove-contacts", [authJwt.verifyToken], controller.removeContacts);
   app.post("/user/send-text", [authJwt.verifyToken], controller.sendText);
+  app.post("/user/remove-texts", [authJwt.verifyToken], controller.removeTexts);
 };
