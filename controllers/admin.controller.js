@@ -15,3 +15,16 @@ exports.addGeneralText = (req, res) => {
     }
   });
 };
+
+exports.removeGeneralText = (req, res) => {
+  textIds = req.body._id;
+  textIds.map((textID) => {
+    GeneralText.deleteOne({ _id: textID }, (err, result) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+    });
+  });
+  res.status(200).send({ message: "Success" });
+};
