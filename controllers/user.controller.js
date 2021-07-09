@@ -18,18 +18,21 @@ exports.userBoard = (req, res) => {
 };
 
 exports.addContact = (req, res) => {
-  new Contact({
-    contact_name: req.body.contact_name,
-    phone: req.body.phone,
-    user_id: mongoose.Types.ObjectId(req.userId),
-  }).save((err) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
+  req.body.contacts.map((contact) => {
+    new Contact({
+      contact_name: contact.contact_name,
+      phone: contact.phone,
+      user_id: mongoose.Types.ObjectId(req.userId),
+    }).save((err) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+    });
+
     res.status(200).send({
-      contact_name: req.body.contact_name,
-      phone: req.body.phone,
+      contact_name: req.body.contacts[0].contact_name,
+      phone: req.body.contacts[0].phone,
       user_id: mongoose.Types.ObjectId(req.userId),
     });
   });
