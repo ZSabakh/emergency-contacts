@@ -14,24 +14,28 @@ verifyName = (req, res, next) => {
   next();
 };
 
-checkDuplicate = (req, res, next) => {
-  req.body.contacts.map((contact) => {
-    Contact.find(
-      {
+checkDuplicate = async (req, res, next) => {
+  const contacts = req.body.contacts;
+  for (let contact of contacts) {
+    let found,
+      conditions = {
         contact_name: contact.contact_name,
         phone: contact.phone,
         user_id: req.userId,
-      },
-      (err, contacts) => {
-        if (contacts.length > 0) {
-          res.status(200).send({ message: "You have already submitted this contact" });
-          return;
-        } else if (err) {
-          console.log(err);
-        }
-      }
-    );
-  });
+      };
+
+    try {
+      found = await Contact.findOne(conditions).lean().exec();
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (found) {
+      res.status(500).send({ message: "You have already submitted this contact" });
+      return;
+    }
+  }
+
   next();
 };
 
