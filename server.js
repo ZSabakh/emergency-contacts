@@ -45,14 +45,11 @@ function initial() {
 
 function dbConnection() {
   db.mongoose
-    .connect(
-      `mongodb+srv://${dbConfig.HOST}/${dbConfig.DB}?retryWrites=true&w=majority`,
-      {
-        useFindAndModify: false,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }
-    )
+    .connect(`mongodb+srv://${dbConfig.HOST}/${dbConfig.DB}?retryWrites=true&w=majority`, {
+      useFindAndModify: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     .then(() => {
       console.log("Successfully connect to MongoDB.");
       initial();

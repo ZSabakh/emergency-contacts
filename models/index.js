@@ -5,6 +5,7 @@ const db = {};
 
 db.mongoose = mongoose;
 
+db.log = require("./log.model");
 db.user = require("./user.model");
 db.role = require("./role.model");
 db.contact = require("./contact.model");
