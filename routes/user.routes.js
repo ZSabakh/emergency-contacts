@@ -1,5 +1,4 @@
-const { authJwt, checkContact } = require("../middlewares");
-const { verifyContact } = require("../middlewares");
+const { authJwt, checkContact, logAction, verifyContact, countryCode } = require("../middlewares");
 const controller = require("../controllers/user.controller");
 
 module.exports = function (app) {
@@ -9,10 +8,10 @@ module.exports = function (app) {
   });
 
   app.get("/public", controller.allAccess);
-
+  app.use("/user", logAction);
   app.get("/user", [authJwt.verifyToken], controller.userBoard);
   app.get("/user/get-contacts", [authJwt.verifyToken], controller.getContacts);
-  app.post("/user/add-contact", [authJwt.verifyToken, verifyContact.verifyName, verifyContact.verifyPhone, verifyContact.checkDuplicate], controller.addContact);
+  app.post("/user/add-contact", [countryCode, authJwt.verifyToken, verifyContact.verifyName, verifyContact.verifyPhone, verifyContact.checkDuplicate], controller.addContact);
   app.post("/user/add-text", [authJwt.verifyToken], controller.addText);
   app.get("/user/get-texts", [authJwt.verifyToken], controller.getTexts);
   app.post("/user/remove-contacts", [authJwt.verifyToken], controller.removeContacts);

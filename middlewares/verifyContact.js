@@ -31,7 +31,7 @@ checkDuplicate = async (req, res, next) => {
     }
 
     if (found) {
-      res.status(500).send({ message: "You have already submitted this contact" });
+      res.status(400).send({ message: "You have already submitted this contact" });
       return;
     }
   }
@@ -40,7 +40,7 @@ checkDuplicate = async (req, res, next) => {
 };
 
 verifyPhone = (req, res, next) => {
-  req.body.contacts.map((contact) => {
+  for (let contact of req.body.contacts) {
     let phone = contact.phone;
     if (!phone || phone.length > 40) {
       res.status(400).send({
@@ -48,7 +48,7 @@ verifyPhone = (req, res, next) => {
       });
       return;
     }
-  });
+  }
   next();
 };
 

@@ -3,6 +3,7 @@ const authJwt = require("./authJwt");
 const verifySignUp = require("./verifySignUp");
 const verifyContact = require("./verifyContact");
 const limitRate = require("./limitRate");
+const countryCode = require("./countryCode");
 
 module.exports = {
   logAction,
@@ -10,4 +11,5 @@ module.exports = {
   verifySignUp,
   verifyContact,
   limitRate,
+  countryCode,
 };
